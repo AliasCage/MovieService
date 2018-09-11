@@ -1,0 +1,11 @@
+# IntelliJ IDEA internals:
+*.iml
+*.ipr
+*.iws
+.idea/
+
+target/
+out/
+git.properties
+
+.fias-updates/
