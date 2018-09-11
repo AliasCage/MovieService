@@ -5,8 +5,8 @@ import lombok.Setter;
 
 import java.util.List;
 
-@Getter
 @Setter
-public class MovieList extends PagedList {
-    private List<ResultMovie> results;
+@Getter
+public class PersonList extends PagedList {
+    List<PersonShort> results;
 }

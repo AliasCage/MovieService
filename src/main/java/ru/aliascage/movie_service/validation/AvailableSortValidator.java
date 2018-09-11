@@ -1,13 +1,10 @@
 package ru.aliascage.movie_service.validation;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 import ru.aliascage.movie_service.config.MovieConfig;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-
-import java.util.List;
 
 import static org.springframework.util.StringUtils.isEmpty;
 import static ru.aliascage.movie_service.validation.Params.SORT;
@@ -22,13 +19,18 @@ public class AvailableSortValidator implements ConstraintValidator<Available, St
         this.constraint = constraint;
     }
 
-    public boolean isValid(String sortValue, ConstraintValidatorContext context) {
-        if (isEmpty(sortValue)) {
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        if (isEmpty(value)) {
             return true;
         }
-        List<String> checkList = SORT.equals(constraint.value())
-                ? config.getAvailableSortValue()
-                : config.getAvailableFilterValue();
-        return checkList.stream().anyMatch(sortValue::equalsIgnoreCase);
+        if (SORT.equals(constraint.value())) {
+            return config.getAvailableSortValue().contains(value);
+        } else {
+            String[] params = value.split("=");
+            if (params.length != 2) {
+                return false;
+            }
+            return config.getAvailableFilterValue().contains(params[0]);
+        }
     }
 }
