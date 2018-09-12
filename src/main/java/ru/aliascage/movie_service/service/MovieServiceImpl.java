@@ -39,7 +39,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public GenreList getGenres(String language) {
+    public GenreList getGenres() {
         return client.getGenres();
     }
 
@@ -75,12 +75,10 @@ public class MovieServiceImpl implements MovieService {
     }
 
     private String addGenres(String value) {
-        GenreList genreList = client.getGenres();
-
         String[] needGenres = value.split(GENRE_SPLITTER);
         List<Integer> genresIds = new ArrayList<>(needGenres.length);
         for (String genreName : needGenres) {
-            Genre genre = getGenreByName(genreList, genreName);
+            Genre genre = getGenreByName(genreName);
             genresIds.add(genre.getId());
         }
         String result = genresIds.stream()
@@ -95,8 +93,9 @@ public class MovieServiceImpl implements MovieService {
         return format(ACTOR_FORMAT_STRING, personId);
     }
 
-    public Genre getGenreByName(GenreList genres, String genreName) {
-        return genres.getGenres().stream()
+    private Genre getGenreByName(String genreName) {
+        List<Genre> genres = client.getGenres().getGenres();
+        return genres.stream()
                 .filter(genre -> genreName.equals(genre.getName()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException(format("Not found genre: %s", genreName)));

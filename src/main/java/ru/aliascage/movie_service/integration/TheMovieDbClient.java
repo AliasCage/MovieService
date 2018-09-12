@@ -2,6 +2,8 @@ package ru.aliascage.movie_service.integration;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,9 @@ public class TheMovieDbClient {
     private static final String QUERY = "query";
 
     @Autowired
+    private CacheManager manager;
+
+    @Autowired
     private MovieConfig config;
 
     @Autowired
@@ -43,6 +48,7 @@ public class TheMovieDbClient {
         return responseEntity.getBody();
     }
 
+    @Cacheable(value = "genres")
     public GenreList getGenres() {
         URI uri = buildUri(config.getUrl() + GENRES_PATH);
         HttpEntity<GenreList> httpEntity = new HttpEntity<>(new GenreList());
