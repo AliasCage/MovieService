@@ -1,8 +1,6 @@
 package ru.aliascage.movie_service.integration;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -19,7 +17,6 @@ import java.net.URI;
 
 import static org.springframework.util.StringUtils.isEmpty;
 
-@Slf4j
 @Component
 public class TheMovieDbClient {
 
@@ -31,9 +28,6 @@ public class TheMovieDbClient {
     private static final String PAGE = "page";
     private static final String SORT_BY = "sort_by";
     private static final String QUERY = "query";
-
-    @Autowired
-    private CacheManager manager;
 
     @Autowired
     private MovieConfig config;

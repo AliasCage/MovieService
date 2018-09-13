@@ -1,9 +1,6 @@
 package ru.aliascage.movie_service.service;
 
-import ru.aliascage.movie_service.model.GenreList;
-import ru.aliascage.movie_service.model.MovieDetails;
-import ru.aliascage.movie_service.model.MovieList;
-import ru.aliascage.movie_service.model.MovieListRequest;
+import ru.aliascage.movie_service.model.*;
 
 public interface MovieService {
     MovieDetails getMovie(Integer id);
@@ -11,4 +8,8 @@ public interface MovieService {
     MovieList getMovieList(MovieListRequest request);
 
     GenreList getGenres();
+
+    VoteAverageResponse getVoteAverageByGenre(String genreName);
+
+    Integer getGenreIdByName(String genreName);
 }
