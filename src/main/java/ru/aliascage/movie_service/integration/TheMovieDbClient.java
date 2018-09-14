@@ -14,7 +14,9 @@ import ru.aliascage.movie_service.config.MovieConfig;
 import ru.aliascage.movie_service.model.*;
 
 import java.net.URI;
+import java.util.List;
 
+import static java.lang.String.format;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
@@ -68,6 +70,14 @@ public class TheMovieDbClient {
         HttpEntity<PersonList> httpEntity = new HttpEntity<>(new PersonList());
         ResponseEntity<PersonList> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, PersonList.class);
         return responseEntity.getBody();
+    }
+
+    public Integer getGenreIdByName(String genreName) {
+        List<Genre> genres = getGenres().getGenres();
+        return genres.stream()
+                .filter(genre -> genreName.equalsIgnoreCase(genre.getName()))
+                .map(Genre::getId)
+                .findFirst().orElseThrow(() -> new RuntimeException(format("Not found genre: %s", genreName)));
     }
 
     private MultiValueMap<String, String> buildParamsMap(MovieListRequest request) {

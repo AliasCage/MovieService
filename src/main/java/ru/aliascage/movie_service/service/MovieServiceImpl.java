@@ -1,6 +1,5 @@
 package ru.aliascage.movie_service.service;
 
-import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.IMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +29,7 @@ public class MovieServiceImpl implements MovieService {
     private static final String ACTOR_FORMAT_STRING = "with_cast=%s";
 
     @Autowired
-    private HazelcastInstance hazelcastInstance;
+    private IMap<String, VoteAverageResponse> map;
 
     @Autowired
     private TheMovieDbClient client;
@@ -56,59 +55,12 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public VoteAverageResponse getVoteAverageByGenre(String genreName) {
-        IMap<String, VoteAverageResponse> map = hazelcastInstance.getMap("voteAverage");
-        String genre = genreName.toUpperCase();
-        VoteAverageResponse response = map.get(genre);
-        if (response == null) {
-            response = new VoteAverageResponse();
-            map.put(genre, response);
-            averageService.run(genre);
-        } else if (FINISH.equals(response.getStatus()) && !response.isActual()) {
-            averageService.run(genre);
+        VoteAverageResponse response = map.putIfAbsent(genreName, new VoteAverageResponse());
+        if (response == null || FINISH.equals(response.getStatus()) && !response.isActual()) {
+            averageService.runAsync(genreName);
         }
-        return response;
+        return map.get(genreName);
     }
-
-    @Override
-    public Integer getGenreIdByName(String genreName) {
-        List<Genre> genres = client.getGenres().getGenres();
-        return genres.stream()
-                .filter(genre -> genreName.equalsIgnoreCase(genre.getName()))
-                .map(Genre::getId)
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException(format("Not found genre: %s", genreName)));
-    }
-
-//    @Async
-//    public CompletableFuture<Void> runCalculateVoteAverage(String genreName) {
-//        log.info("Started calculation vote average for genre: {}", genreName);
-//        Integer genreId = getGenreIdByName(genreName);
-//        MovieListRequest request = new MovieListRequest().setFilter(format(GENRES_FORMAT_STRING, genreId));
-//        MovieList movieList = client.getMovieList(request);
-//        double sum = movieList.getResults().stream()
-//                .mapToDouble(ResultMovie::getVoteAverage)
-//                .sum();
-//        IMap<String, VoteAverageResponse> map = hazelcastInstance.getMap("voteAverage");
-//        VoteAverageResponse response = map.get(genreName);
-//        Integer totalPages = movieList.getTotalPages();
-//        for (int i = 2; i < totalPages; i++) {
-//            request.setPage(i);
-//            movieList = client.getMovieList(request);
-//            sum += movieList.getResults().stream()
-//                    .mapToDouble(ResultMovie::getVoteAverage)
-//                    .sum();
-//            response.setPercent((i / totalPages) * 100);
-//            map.put(genreName, response);
-//        }
-//        response.setLastUpdate(LocalDateTime.now());
-//        response.setVoteAverage((float) (sum / movieList.getTotalResults()));
-//        map.put(genreName, response);
-//        log.info("Calculation finished for: {}, total count: {}, vote average: {}",
-//                genreName,
-//                movieList.getTotalResults(),
-//                response.getVoteAverage());
-//        return CompletableFuture.completedFuture(null);
-//    }
 
     private void convertFilterField(MovieListRequest request) {
         String filter = request.getFilter();
@@ -143,7 +95,7 @@ public class MovieServiceImpl implements MovieService {
 
     private String addGenres(String value) {
         String result = Stream.of(value.split(GENRE_SPLITTER))
-                .map(this::getGenreIdByName)
+                .map(client::getGenreIdByName)
                 .map(String::valueOf)
                 .collect(Collectors.joining(GENRE_SPLITTER));
         return format(GENRES_FORMAT_STRING, result);

@@ -15,7 +15,7 @@ public class RestTemplateConfig {
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder) {
         ClientHttpRequestFactory factory = new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
-        RestTemplate template = builder.interceptors(new LoggingRequest())
+        RestTemplate template = builder.interceptors(LoggingRequest.of("/3/movie/", "/3/search/person", "/3/genre/movie/list"))
                 .build();
         template.setRequestFactory(factory);
         return template;

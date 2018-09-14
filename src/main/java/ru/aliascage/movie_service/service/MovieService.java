@@ -11,5 +11,4 @@ public interface MovieService {
 
     VoteAverageResponse getVoteAverageByGenre(String genreName);
 
-    Integer getGenreIdByName(String genreName);
 }

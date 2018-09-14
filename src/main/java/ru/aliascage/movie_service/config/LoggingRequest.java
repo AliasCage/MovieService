@@ -10,54 +10,54 @@ import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 
 @Slf4j
 public class LoggingRequest implements ClientHttpRequestInterceptor {
 
-    private static final String RESPONSE_LOG_TEMPLATE = "\n=======================response begin===============================================\n" +
-            "Status       : {} {}\n" +
-            "Headers      : {}\n" +
-            "Response body: {}\n" +
-            "=======================response end=================================================";
+    private final List<String> urls;
 
-    private static final String REQUEST_LOG_TEMPLATE = "\n==========================request begin==============================================\n" +
-            "Method URI  : {} {}\n" +
-            "Headers     : {}\n" +
-            "Request body: {}\n" +
-            "==========================request end================================================";
+    private LoggingRequest(String[] urls) {
+        this.urls = Arrays.asList(urls);
+    }
+
+    public static LoggingRequest of(String... urls) {
+        return new LoggingRequest(urls);
+    }
+
+    private static final String REQUEST_LOG_TEMPLATE = "\n[Request begin]\n" +
+            "Method URI   : {} {}\n" +
+            "Status       : {} {}\n" +
+            "Request body : {}\n" +
+            "Response body: {}\n";
 
     @Override
     public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
-        logRequest(request, body);
         ClientHttpResponse response = execution.execute(request, body);
-        logResponse(response);
+        if (urls.contains(request.getURI().getPath())) {
+            logRequest(request, body, response);
+        }
         return response;
     }
 
-    private void logRequest(HttpRequest request, byte[] body) {
+    private void logRequest(HttpRequest request, byte[] body, ClientHttpResponse response) throws IOException {
         log.info(REQUEST_LOG_TEMPLATE,
                 request.getMethod(),
                 request.getURI(),
-                request.getHeaders(),
-                new String(body, StandardCharsets.UTF_8));
-    }
-
-    private void logResponse(ClientHttpResponse response) throws IOException {
-        log.info(RESPONSE_LOG_TEMPLATE,
                 response.getStatusCode(),
                 response.getStatusText(),
-                response.getHeaders(),
+                new String(body, StandardCharsets.UTF_8),
                 responseAsString(response.getHeaders(), IOUtils.toByteArray(response.getBody())));
     }
 
     private String responseAsString(HttpHeaders headers, byte[] response) {
         MediaType contentType = headers.getContentType();
         if (response != null && response.length > 0) {
-            if (contentType != null && contentType.toString().contains("json")) {
-                return new String(response, Charset.forName("UTF-8"));
+            if (contentType != null && contentType.toString().contains(MediaType.APPLICATION_JSON_VALUE)) {
+                return new String(response, StandardCharsets.UTF_8);
             } else {
                 return Base64.getEncoder().encodeToString(response);
             }
