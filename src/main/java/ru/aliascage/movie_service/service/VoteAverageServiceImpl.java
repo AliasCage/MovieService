@@ -25,6 +25,10 @@ import static ru.aliascage.movie_service.model.VoteAverageStatus.RUNNING;
 @Component
 public class VoteAverageServiceImpl implements VoteAverageService {
 
+    private static final String FINISH_CALC_MSG = "Calculation finished for: {}, vote average: {}";
+    private static final String START_CALC_MSG = "Started calculation vote average for genre: {}";
+    private static final String TOO_MANY_REQ_MSG = "Too many requests. {} {} seconds sleep";
+
     private static final String GENRES_FORMAT_STRING = "with_genres=%s";
     private static final int PAGE_MAX_SIZE = 1000;
 
@@ -39,7 +43,7 @@ public class VoteAverageServiceImpl implements VoteAverageService {
 
     @Async
     public void runAsync(String genreName) {
-        log.info("Started calculation vote average for genre: {}", genreName);
+        log.info(START_CALC_MSG, genreName);
         Integer genreId = client.getGenreIdByName(genreName);
         MovieListRequest request = new MovieListRequest().setFilter(format(GENRES_FORMAT_STRING, genreId));
         MovieList movieList = client.getMovieList(request);
@@ -50,7 +54,8 @@ public class VoteAverageServiceImpl implements VoteAverageService {
         //В условии выхода лучше использовать значение movieList.getTotalPages(), но максимальное значение page, но
         // максимально е значение которое может принимать TNDB равно 1000
         int totalPages = movieList.getTotalPages() <= PAGE_MAX_SIZE ? movieList.getTotalPages() : PAGE_MAX_SIZE;
-        for (int i = 2; i < totalPages; i++) {
+        int i = 2;
+        while (i < totalPages) {
             request.setPage(i);
             try {
                 movieList = client.getMovieList(request);
@@ -58,11 +63,11 @@ public class VoteAverageServiceImpl implements VoteAverageService {
                 if (!TOO_MANY_REQUESTS.equals(e.getStatusCode())) {
                     throw e;
                 }
-                i--;
-                log.debug("Too many requests. {} 2 seconds sleep", genreName);
+                log.debug(TOO_MANY_REQ_MSG, genreName, REQUEST_LIMIT_DELAY / 1000);
                 sleep();
                 continue;
             }
+            i++;
             results.addAll(movieList.getResults());
             response.setPercent(((float) i / totalPages) * 100);
             averageMap.put(genreName, response);
@@ -70,7 +75,7 @@ public class VoteAverageServiceImpl implements VoteAverageService {
         }
         setResultInResponse(results, response);
         averageMap.put(genreName, response);
-        log.info("Calculation finished for: {}, vote average: {}", genreName, response.getVoteAverage());
+        log.info(FINISH_CALC_MSG, genreName, response.getVoteAverage());
     }
 
     private void sleep() {
