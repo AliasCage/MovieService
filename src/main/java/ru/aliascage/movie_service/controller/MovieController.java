@@ -6,7 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import ru.aliascage.movie_service.model.*;
+import ru.aliascage.movie_service.model.MovieDetails;
+import ru.aliascage.movie_service.model.MovieList;
+import ru.aliascage.movie_service.model.MovieListRequest;
+import ru.aliascage.movie_service.model.VoteAverageResponse;
 import ru.aliascage.movie_service.service.MovieService;
 
 import javax.validation.constraints.Pattern;
@@ -30,11 +33,6 @@ public class MovieController {
     @GetMapping()
     public MovieList getMovieList(MovieListRequest request) {
         return movieService.getMovieList(request);
-    }
-
-    @GetMapping("/genres")
-    public GenreList getGenres() {
-        return movieService.getGenres();
     }
 
     @GetMapping("/vote-average/{genreName}")
