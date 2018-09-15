@@ -2,17 +2,20 @@ package ru.aliascage.movie_service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.time.LocalDate;
 import java.util.List;
 
 @Setter
 @Getter
+@Accessors(chain = true)
 @XmlRootElement
+@NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MovieDetails {
     private Integer id;
@@ -39,7 +42,7 @@ public class MovieDetails {
     @JsonProperty("production_countries")
     private List<ProductionCountries> productionCountries;
     @JsonProperty("release_date")
-    private LocalDate releaseDate;
+    private String releaseDate;
     private Integer revenue;
     private Integer runtime;
     @JsonProperty("spoken_languages")

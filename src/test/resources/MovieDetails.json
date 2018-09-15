@@ -1,0 +1,82 @@
+{
+  "id": 76341,
+  "adult": false,
+  "budget": 150000000,
+  "genres": [
+    {
+      "id": 28,
+      "name": "Action"
+    },
+    {
+      "id": 12,
+      "name": "Adventure"
+    },
+    {
+      "id": 878,
+      "name": "Science Fiction"
+    },
+    {
+      "id": 53,
+      "name": "Thriller"
+    }
+  ],
+  "homepage": "http://www.madmaxmovie.com/",
+  "overview": "An apocalyptic story set in the furthest reaches of our planet, in a stark desert landscape where humanity is broken, and most everyone is crazed fighting for the necessities of life. Within this world exist two rebels on the run who just might be able to restore order. There's Max, a man of action and a man of few words, who seeks peace of mind following the loss of his wife and child in the aftermath of the chaos. And Furiosa, a woman of action and a woman who believes her path to survival may be achieved if she can make it across the desert back to her childhood homeland.",
+  "popularity": 29.053,
+  "revenue": 378858340,
+  "runtime": 120,
+  "status": "Released",
+  "tagline": "What a Lovely Day.",
+  "title": "Mad Max: Fury Road",
+  "video": false,
+  "backdrop_path": "/phszHPFVhPHhMZgo0fWTKBDQsJA.jpg",
+  "belongs_to_collection": {
+    "id": 8945,
+    "name": "Mad Max Collection",
+    "poster_path": "/jZowUf4okNYuSlgj5iURE7CDMho.jpg",
+    "backdrop_path": "/zI0q2ENcQOLECbe0gAEGlncVh2j.jpg"
+  },
+  "imdb_id": "tt1392190",
+  "original_language": "en",
+  "original_title": "Mad Max: Fury Road",
+  "poster_path": "/kqjL17yufvn9OVLyXYpvtyrFfak.jpg",
+  "production_companies": [
+    {
+      "id": 79,
+      "name": "Village Roadshow Pictures",
+      "logo_path": "/tpFpsqbleCzEE2p5EgvUq6ozfCA.png",
+      "origin_country": "US"
+    },
+    {
+      "id": 2537,
+      "name": "Kennedy Miller Productions",
+      "logo_path": null,
+      "origin_country": "AU"
+    },
+    {
+      "id": 174,
+      "name": "Warner Bros. Pictures",
+      "logo_path": "/ky0xOc5OrhzkZ1N6KyUxacfQsCk.png",
+      "origin_country": "US"
+    }
+  ],
+  "production_countries": [
+    {
+      "iso_3166_1": "AU",
+      "name": "Australia"
+    },
+    {
+      "iso_3166_1": "US",
+      "name": "United States of America"
+    }
+  ],
+  "release_date": "2015-05-13",
+  "spoken_languages": [
+    {
+      "iso_639_1": "en",
+      "name": "English"
+    }
+  ],
+  "vote_average": 7.4,
+  "vote_count": 12435
+}

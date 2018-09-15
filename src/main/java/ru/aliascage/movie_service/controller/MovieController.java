@@ -12,6 +12,7 @@ import ru.aliascage.movie_service.model.MovieListRequest;
 import ru.aliascage.movie_service.model.VoteAverageResponse;
 import ru.aliascage.movie_service.service.MovieService;
 
+import javax.validation.Valid;
 import javax.validation.constraints.Pattern;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -31,7 +32,7 @@ public class MovieController {
     }
 
     @GetMapping()
-    public MovieList getMovieList(MovieListRequest request) {
+    public MovieList getMovieList(@Valid MovieListRequest request) {
         return movieService.getMovieList(request);
     }
 

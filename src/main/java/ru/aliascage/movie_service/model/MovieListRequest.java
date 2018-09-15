@@ -11,7 +11,7 @@ import ru.aliascage.movie_service.validation.Params;
 @Setter
 @Accessors(chain = true)
 public class MovieListRequest {
-    @Range(min = 1, max = 10000)
+    @Range(min = 1, max = 1000)
     private Integer page = 1;
     @Available(value = Params.SORT, message = "Not allowed sort value")
     private String sort;
