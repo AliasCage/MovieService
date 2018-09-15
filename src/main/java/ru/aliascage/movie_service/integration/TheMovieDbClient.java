@@ -2,21 +2,17 @@ package ru.aliascage.movie_service.integration;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
-import ru.aliascage.movie_service.config.MovieConfig;
+import ru.aliascage.movie_service.exception.NotFoundGenreException;
 import ru.aliascage.movie_service.model.*;
 
-import java.net.URI;
 import java.util.List;
 
-import static java.lang.String.format;
 import static org.springframework.util.StringUtils.isEmpty;
 
 @Component
@@ -26,49 +22,37 @@ public class TheMovieDbClient {
     private static final String MOVIES_PATH = "/discover/movie";
     private static final String SEARCH_PERSON_PATH = "/search/person";
     private static final String GENRES_PATH = "/genre/movie/list";
-    private static final String API_KEY = "api_key";
     private static final String PAGE = "page";
     private static final String SORT_BY = "sort_by";
     private static final String QUERY = "query";
 
     @Autowired
-    private MovieConfig config;
-
-    @Autowired
     private RestTemplate restTemplate;
 
     public MovieDetails getMovieDetails(Integer movieId) {
-        URI uri = buildUri(config.getUrl() + MOVIE_PATH + movieId);
-        HttpEntity<MovieDetails> httpEntity = new HttpEntity<>(new MovieDetails());
-        ResponseEntity<MovieDetails> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, MovieDetails.class);
+        ResponseEntity<MovieDetails> responseEntity = restTemplate.getForEntity(MOVIE_PATH + movieId, MovieDetails.class);
         return responseEntity.getBody();
     }
 
     @Cacheable(value = "genres")
     public GenreList getGenres() {
-        URI uri = buildUri(config.getUrl() + GENRES_PATH);
-        HttpEntity<GenreList> httpEntity = new HttpEntity<>(new GenreList());
-        ResponseEntity<GenreList> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, GenreList.class);
+        ResponseEntity<GenreList> responseEntity = restTemplate.getForEntity(GENRES_PATH, GenreList.class);
         return responseEntity.getBody();
     }
 
     public MovieList getMovieList(MovieListRequest request) {
-        URI uri = UriComponentsBuilder.fromUriString(config.getUrl() + MOVIES_PATH)
-                .queryParam(API_KEY, config.getApiKey())
+        String uri = UriComponentsBuilder.fromPath(MOVIES_PATH)
                 .queryParams(buildParamsMap(request))
-                .build().toUri();
-        HttpEntity<MovieList> httpEntity = new HttpEntity<>(new MovieList());
-        ResponseEntity<MovieList> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, MovieList.class);
+                .build().toUriString();
+        ResponseEntity<MovieList> responseEntity = restTemplate.getForEntity(uri, MovieList.class);
         return responseEntity.getBody();
     }
 
     public PersonList findPerson(String name) {
-        URI uri = UriComponentsBuilder.fromUriString(config.getUrl() + SEARCH_PERSON_PATH)
-                .queryParam(API_KEY, config.getApiKey())
+        String uri = UriComponentsBuilder.fromPath(SEARCH_PERSON_PATH)
                 .queryParam(QUERY, name)
-                .build().toUri();
-        HttpEntity<PersonList> httpEntity = new HttpEntity<>(new PersonList());
-        ResponseEntity<PersonList> responseEntity = restTemplate.exchange(uri, HttpMethod.GET, httpEntity, PersonList.class);
+                .build().toUriString();
+        ResponseEntity<PersonList> responseEntity = restTemplate.getForEntity(uri, PersonList.class);
         return responseEntity.getBody();
     }
 
@@ -77,7 +61,7 @@ public class TheMovieDbClient {
         return genres.stream()
                 .filter(genre -> genreName.equalsIgnoreCase(genre.getName()))
                 .map(Genre::getId)
-                .findFirst().orElseThrow(() -> new RuntimeException(format("Not found genre: %s", genreName)));
+                .findFirst().orElseThrow(() -> new NotFoundGenreException(genreName));
     }
 
     private MultiValueMap<String, String> buildParamsMap(MovieListRequest request) {
@@ -95,9 +79,4 @@ public class TheMovieDbClient {
         return map;
     }
 
-    private URI buildUri(String urlParts) {
-        return UriComponentsBuilder.fromUriString(urlParts)
-                .queryParam(API_KEY, config.getApiKey())
-                .build().toUri();
-    }
 }

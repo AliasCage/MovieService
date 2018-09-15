@@ -4,6 +4,7 @@ import com.hazelcast.core.IMap;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ru.aliascage.movie_service.exception.IllegalPersonCountException;
 import ru.aliascage.movie_service.integration.TheMovieDbClient;
 import ru.aliascage.movie_service.model.*;
 
@@ -69,14 +70,11 @@ public class MovieServiceImpl implements MovieService {
             String field = params[0];
             String value = params[1];
 
-            switch (field) {
-                case ACTOR_REQUEST_FIELD:
-                    request.setFilter(addActor(value));
-                    break;
-                case GENRES_REQUEST_FIELD:
-                    request.setFilter(addGenres(value));
-                    break;
-                default:
+            if (ACTOR_REQUEST_FIELD.equals(field)) {
+                request.setFilter(addActor(value));
+            }
+            if (GENRES_REQUEST_FIELD.equals(field)) {
+                request.setFilter(addGenres(value));
             }
         }
     }
@@ -89,8 +87,7 @@ public class MovieServiceImpl implements MovieService {
         if (personShortList.size() == 1) {
             return personShortList.get(0);
         }
-        String msg = format("Found %s persons with name: %s", personShortList.size(), name);
-        throw new IllegalStateException(msg);
+        throw new IllegalPersonCountException(name, personShortList.size());
     }
 
     private String addGenres(String value) {
