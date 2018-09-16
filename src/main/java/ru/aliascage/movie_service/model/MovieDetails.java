@@ -2,9 +2,7 @@ package ru.aliascage.movie_service.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.experimental.Accessors;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -13,9 +11,7 @@ import java.util.List;
 
 @Setter
 @Getter
-@Accessors(chain = true)
 @XmlRootElement
-@NoArgsConstructor
 @XmlAccessorType(XmlAccessType.FIELD)
 public class MovieDetails {
     private Integer id;
