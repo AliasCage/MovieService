@@ -15,6 +15,7 @@ import ru.aliascage.movie_service.model.VoteAverageResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.TOO_MANY_REQUESTS;
@@ -42,7 +43,7 @@ public class VoteAverageServiceImpl implements VoteAverageService {
     private IMap<String, VoteAverageResponse> averageMap;
 
     @Async
-    public void runAsync(String genreName) {
+    public CompletableFuture<Void> runAsync(String genreName) {
         log.info(START_CALC_MSG, genreName);
         Integer genreId = client.getGenreIdByName(genreName);
         MovieListRequest request = new MovieListRequest().setFilter(format(GENRES_FORMAT_STRING, genreId));
@@ -55,7 +56,7 @@ public class VoteAverageServiceImpl implements VoteAverageService {
         // максимально е значение которое может принимать TNDB равно 1000
         int totalPages = movieList.getTotalPages() <= PAGE_MAX_SIZE ? movieList.getTotalPages() : PAGE_MAX_SIZE;
         int i = 2;
-        while (i < totalPages) {
+        while (i <= totalPages) {
             request.setPage(i);
             try {
                 movieList = client.getMovieList(request);
@@ -67,23 +68,16 @@ public class VoteAverageServiceImpl implements VoteAverageService {
                 sleep();
                 continue;
             }
-            i++;
             results.addAll(movieList.getResults());
             response.setPercent(((float) i / totalPages) * 100);
             averageMap.put(genreName, response);
             log.debug("{} : {}%", genreName, response.getPercent());
+            i++;
         }
         setResultInResponse(results, response);
         averageMap.put(genreName, response);
         log.info(FINISH_CALC_MSG, genreName, response.getVoteAverage());
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(REQUEST_LIMIT_DELAY);
-        } catch (InterruptedException e) {
-            log.error("", e);
-        }
+        return CompletableFuture.completedFuture(null);
     }
 
     private void setResultInResponse(List<ResultMovie> results, VoteAverageResponse response) {
@@ -94,5 +88,13 @@ public class VoteAverageServiceImpl implements VoteAverageService {
         response.setVoteAverage(average.floatValue());
         response.setLastUpdate(LocalDateTime.now());
         response.setStatus(FINISH);
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(REQUEST_LIMIT_DELAY);
+        } catch (InterruptedException e) {
+            log.error("", e);
+        }
     }
 }

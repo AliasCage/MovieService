@@ -1,5 +1,7 @@
 package ru.aliascage.movie_service.service;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface VoteAverageService {
-    void runAsync(String genre);
+    CompletableFuture<Void> runAsync(String genre);
 }

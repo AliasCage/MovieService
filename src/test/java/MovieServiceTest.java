@@ -13,6 +13,7 @@ import ru.aliascage.movie_service.service.VoteAverageService;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
@@ -35,13 +36,14 @@ public class MovieServiceTest {
 
     @Test
     public void getVoteAverageTest() {
-        doNothing().when(averageService).runAsync(anyString());
-        VoteAverageResponse action = service.getVoteAverageByGenre("action");
+        String genreName = "action";
+        when(averageService.runAsync(genreName)).thenReturn(CompletableFuture.completedFuture(null));
+        VoteAverageResponse action = service.getVoteAverageByGenre(genreName);
         verify(averageService, times(1)).runAsync(anyString());
         assertThat(action.getStatus().toString(), notNullValue());
         assertThat(action.getStatus(), equalTo(VoteAverageStatus.START));
 
-        service.getVoteAverageByGenre("action");
+        service.getVoteAverageByGenre(genreName);
         verify(averageService, times(1)).runAsync(anyString());
     }
 
