@@ -1,14 +1,9 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hazelcast.core.IMap;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.aliascage.movie_service.App;
 import ru.aliascage.movie_service.integration.TheMovieDbClient;
 import ru.aliascage.movie_service.model.MovieList;
 import ru.aliascage.movie_service.model.MovieListRequest;
@@ -16,7 +11,6 @@ import ru.aliascage.movie_service.model.VoteAverageResponse;
 import ru.aliascage.movie_service.model.VoteAverageStatus;
 import ru.aliascage.movie_service.service.VoteAverageService;
 
-import java.io.File;
 import java.io.IOException;
 
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -28,12 +22,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @EnableAsync
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {App.class})
-public class VoteAverageServiceTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class VoteAverageServiceTest extends AbstractBaseTest {
 
     @Autowired
     private VoteAverageService service;
@@ -47,7 +36,7 @@ public class VoteAverageServiceTest {
     @Test
     public void runAsyncVoteAverageCalculationTest() throws IOException {
         String genreName = "ACTION";
-        MovieList movieList = getObjectFromJson("MovieList.json", MovieList.class);
+        MovieList movieList = fromJson("MovieList.json", MovieList.class);
         MovieListRequest request = new MovieListRequest().setFilter("with_genres=28");
 
         averageMap.putIfAbsent(genreName, new VoteAverageResponse());
@@ -76,8 +65,4 @@ public class VoteAverageServiceTest {
         assertThat(voteAverageResponse.isActual(), equalTo(true));
     }
 
-    private <T> T getObjectFromJson(String path, Class<T> type) throws IOException {
-        File resourcesDirectory = new File("src/test/resources/" + path);
-        return objectMapper.readValue(resourcesDirectory, type);
-    }
 }

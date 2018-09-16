@@ -1,10 +1,6 @@
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import ru.aliascage.movie_service.App;
 import ru.aliascage.movie_service.exception.IllegalPersonCountException;
 import ru.aliascage.movie_service.integration.TheMovieDbClient;
 import ru.aliascage.movie_service.model.*;
@@ -22,9 +18,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@SpringBootTest(classes = {App.class})
-public class MovieServiceTest {
+public class MovieServiceTest extends AbstractBaseTest {
 
     @Autowired
     private MovieService service;

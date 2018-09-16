@@ -74,7 +74,7 @@ public class TheMovieDbClientImpl implements TheMovieDbClient {
 
         map.add(PAGE, request.getPage().toString());
         if (!isEmpty(request.getSort())) {
-            map.add(SORT_BY, request.getPage().toString());
+            map.add(SORT_BY, request.getSort());
         }
         String filter = request.getFilter();
         if (!isEmpty(filter)) {
