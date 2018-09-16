@@ -31,7 +31,7 @@ public class MovieController {
         return movieService.getMovie(id);
     }
 
-    @GetMapping()
+    @GetMapping
     public MovieList getMovieList(@Valid MovieListRequest request) {
         return movieService.getMovieList(request);
     }
