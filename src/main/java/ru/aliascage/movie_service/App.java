@@ -25,7 +25,7 @@ public class App {
 
     @Bean
     public IMap<String, VoteAverageResponse> averageMap(@Autowired HazelcastInstance hazelcastInstance) {
-        return hazelcastInstance.getMap("voteAverage");
+        return hazelcastInstance.getMap("dataCache");
     }
 
     @Bean
